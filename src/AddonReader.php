@@ -32,12 +32,12 @@ class AddonReader
             return false;
         }
 
-        $this->version = $this->buffer->readBytes(1);
+        $this->version = $this->buffer->readInt8();
 
         // Check version here
 
-        $steamID = $this->buffer->readInt32();
-        $timestamp = $this->buffer->readInt32();
+        $this->buffer->readInt32(); $this->buffer->readInt32(); // steamid
+        $this->buffer->readInt32(); $this->buffer->readInt32(); // timestamp
 
         // Required content (not used at the moment, just read out)
 
@@ -119,6 +119,11 @@ class AddonReader
 		}
 
 		return $str;
+    }
+
+    private function readInt64()
+    {
+
     }
 
     private function clear()
