@@ -1,0 +1,22 @@
+{
+    "name": "adamdburton/gmad-php",
+    "description": "Garry's Mod Addon Creator and Extractor in php",
+    "require": {
+        "mdurrant/php-binary-reader": "1.0.*@dev"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Adam Burton",
+            "email": "adam@burt0n.net"
+        }
+    ],
+    "autoload": {
+         "psr-4": {
+             "AdamDBurton\\GMad\\": [
+                 "src/",
+                 "test/"
+             ]
+         }
+    }
+}
