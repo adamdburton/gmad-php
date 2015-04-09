@@ -57,25 +57,27 @@ class AddonReader
 
         // Addon version - unused
 
-        $this->addonVersion = $this->buffer->readInt32();
+        $this->addonVersion = $this->buffer->readInt64();
 
         // File index
 
         $offset = 0;
+        $fileNumber = 1;
 
         while($this->buffer->readUInt16() != 0)
         {
             $file = [
-                'fileNumber' => $this->buffer->readUInt16(),
                 'name' => $this->readString(),
                 'size' => $this->buffer->readInt32(),
                 'crc' => $this->buffer->readUInt16(),
-                'offset' => $offset
+                'offset' => $offset,
+                'fileNumber' => $fileNumber
             ];
 
             $this->index[] = $file;
 
             $offset += $file['size'];
+            $fileNumber++;
         }
 
         $this->fileBlock = $this->buffer->getPosition();
