@@ -1,15 +1,17 @@
 <?php namespace AdamDBurton\GMad;
 
-use PhpBinaryReader\BinaryReader;
-
 class AddonReader
 {
-    private $name;
-    private $author;
-    private $description;
     private $version;
-    private $type;
-    private $tags;
+    private $steamid;
+    private $timestamp;
+
+    private $addonName;
+    private $addonVersion;
+    private $addonAuthor;
+    private $addonDescription;
+    private $addonType;
+    private $addonTags;
 
     private $index;
     private $fileBlock;
@@ -17,10 +19,8 @@ class AddonReader
 
     public function __construct($filename)
     {
-        $this->clear();
-
         $fileResource = fopen($filename, 'r');
-        $this->buffer = new BinaryReader($fileResource);
+        $this->buffer = new BinaryReader\BinaryReader($fileResource);
 
         return true;
     }
@@ -36,8 +36,8 @@ class AddonReader
 
         // Check version here
 
-        $this->buffer->readInt32(); $this->buffer->readInt32(); // steamid
-        $this->buffer->readInt32(); $this->buffer->readInt32(); // timestamp
+        $this->steamid = $this->buffer->readInt64(); // steamid
+        $this->timestamp = $this->buffer->readInt64(); // timestamp
 
         // Required content (not used at the moment, just read out)
 
@@ -51,45 +51,42 @@ class AddonReader
             }
         }
 
-        $this->name = $this->readString();
-        $this->description = $this->readString();
-        $this->author = $this->readString();
+        $this->addonName = $this->readString();
+        $this->addonDescription = $this->readString();
+        $this->addonAuthor = $this->readString();
 
         // Addon version - unused
 
-        $this->buffer->readInt16();
+        $this->addonVersion = $this->buffer->readInt32();
 
         // File index
 
-        $fileNumber = 1;
         $offset = 0;
 
         while($this->buffer->readUInt16() != 0)
         {
             $file = [
+                'fileNumber' => $this->buffer->readUInt16(),
                 'name' => $this->readString(),
                 'size' => $this->buffer->readInt32(),
                 'crc' => $this->buffer->readUInt16(),
-                'offset' => $offset,
-                'fileNumber' => $fileNumber
+                'offset' => $offset
             ];
 
             $this->index[] = $file;
 
             $offset += $file['size'];
-
-            $fileNumber++;
         }
 
         $this->fileBlock = $this->buffer->getPosition();
 
-        $json = json_decode($this->description);
+        $json = json_decode($this->addonDescription);
 
         if($json)
         {
-            $this->description = $json->description;
-            $this->type = $json->type;
-            $this->tags = $json->tags;
+            $this->addonDescription = $json->description;
+            $this->addonType = $json->type;
+            $this->addonTags = $json->tags;
         }
 
         return true;
@@ -97,7 +94,7 @@ class AddonReader
 
     private function readString()
     {
-        // Replacement for ReadString that reads until 0x00;
+        // Replacement for ReadString that reads until 0x00
 
         $str = '';
 
@@ -108,35 +105,16 @@ class AddonReader
                 break;
             }
 
-            $char = $this->buffer->readString(1);
+            $char = $this->buffer->readInt8(1);
 
-			if($char == 0x00)
+			if($char == 0)
             {
                 break;
             }
 
-			$str .= $char;
+			$str .= chr($char);
 		}
 
 		return $str;
-    }
-
-    private function readInt64()
-    {
-
-    }
-
-    private function clear()
-    {
-        $this->version = 0;
-        $this->name = '';
-        $this->author = '';
-        $this->description = '';
-        $this->type = '';
-        $this->tags = [];
-
-        $this->index = [];
-        $this->fileBlock = 0;
-        $this->buffer = new BinaryReader('');
     }
 }
