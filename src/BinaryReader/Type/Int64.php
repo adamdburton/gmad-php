@@ -1,4 +1,4 @@
-<?php namespace AdamDBurton\GMad\BinaryReader;
+<?php namespace AdamDBurton\GMad\BinaryReader\Type;
 
 use \PhpBinaryReader\BitMask;
 use \PhpBinaryReader\Endian;

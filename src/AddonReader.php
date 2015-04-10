@@ -45,7 +45,7 @@ class AddonReader
         {
             $content = $this->readString();
 
-            while($content != '')
+            while($content !== '')
             {
                 $content = $this->readString();
             }
@@ -57,7 +57,9 @@ class AddonReader
 
         // Addon version - unused
 
-        $this->addonVersion = $this->buffer->readInt64();
+        $this->addonVersion = $this->buffer->readInt16();
+
+        $this->fileBlock = $this->buffer->getPosition();
 
         // File index
 
@@ -80,7 +82,9 @@ class AddonReader
             $fileNumber++;
         }
 
-        $this->fileBlock = $this->buffer->getPosition();
+        //$this->fileBlock = $this->buffer->getPosition();
+
+        // Parse json data
 
         $json = json_decode($this->addonDescription);
 
@@ -107,9 +111,9 @@ class AddonReader
                 break;
             }
 
-            $char = $this->buffer->readInt8(1);
+            $char = $this->buffer->readInt8();
 
-			if($char == 0)
+			if($char == 0x00)
             {
                 break;
             }

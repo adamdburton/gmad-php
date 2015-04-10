@@ -3,7 +3,7 @@
 class BinaryReader extends \PhpBinaryReader\BinaryReader
 {
     /**
-     * @var \PhpBinaryReader\Type\Int32
+     * @var \AdamDBurton\GMad\PhpBinaryReader\Type\Int64
      */
     private $int64Reader;
 
@@ -16,7 +16,7 @@ class BinaryReader extends \PhpBinaryReader\BinaryReader
     {
         parent::__construct($input, $endian);
 
-        $this->int64Reader = new Int64();
+        $this->int64Reader = new Type\Int64();
     }
 
     /**
@@ -36,7 +36,7 @@ class BinaryReader extends \PhpBinaryReader\BinaryReader
     }
 
     /**
-     * @return \PhpBinaryReader\Type\Int32
+     * @return \PhpBinaryReader\Type\Int64
      */
     public function getInt64Reader()
     {
