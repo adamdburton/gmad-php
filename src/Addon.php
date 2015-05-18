@@ -2,8 +2,8 @@
 
 class Addon
 {
-    const Ident = 'GMAD';
-    const Version = 3;
-    const AppID = 4000;
-    const CompressionSignature = 0xBEEFCACE;
+    const ident = 'GMAD';
+    const version = 3;
+    const appID = 4000;
+    const compressionSignature = 0xBEEFCACE;
 }
