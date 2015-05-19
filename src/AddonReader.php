@@ -19,21 +19,30 @@ class AddonReader
     
     public function __construct($filename)
     {
-        $this->buffer = new BinaryReader\BinaryReader(fopen($filename, 'r'));
+        try
+        {
+            $fp = fopen($filename, 'r');
+        }
+        catch(\Exception $e)
+        {
+            throw new Exceptions\FileNotFoundException($filename . ' could not be found');
+        }
+
+        $this->buffer = new BinaryReader\BinaryReader($fp);
     }
     
     public function parse()
     {
         if($this->buffer->readString(4) != Addon::ident)
         {
-            return false;
+            throw new Exceptions\InvalidFormatException('GMA ident not found.');
         }
-        
+
         $this->version = $this->buffer->readInt8(); // char
         
         if($this->version > Addon::version)
         {
-            return false;
+            throw new Exceptions\InvalidVersionException('Cannot read version ' . $this->version . ' files.');
         }
         
         $this->steamid = $this->buffer->readInt64(); // steamid
@@ -85,7 +94,7 @@ class AddonReader
                 'fileNumber' => $fileNumber
             ];
             
-            $this->index[] = $file;
+            $this->index[$fileNumber] = $file;
             
             $offset += $file['size'];
             $fileNumber++;
@@ -96,22 +105,54 @@ class AddonReader
         return true;
     }
 
-    public function getFile($fileID)
+    public function getName()
     {
-        foreach($this->index as $file)
-        {
-            if($file['fileNumber'] == $fileID)
-            {
-                return $file;
-            }
-        }
-
-        return false;
+        return $this->addonName;
     }
 
-    public function readFile($fileID)
+    public function getVersion()
     {
-        if(!$file = $this->getFile($fileID)) { return false; }
+        return $this->addonVersion;
+    }
+
+    public function getAuthor()
+    {
+        return $this->addonAuthor;
+    }
+
+    public function getDescription()
+    {
+        return $this->addonDescription;
+    }
+
+    public function getType()
+    {
+        return $this->addonType;
+    }
+
+    public function getTags()
+    {
+        return $this->addonTags;
+    }
+
+    public function getFiles()
+    {
+        return $this->index;
+    }
+
+    public function getFileInfo($fileID)
+    {
+        if(isset($this->index[$fileID]))
+        {
+            return $this->index[$fileID];
+        }
+
+        throw new Exceptions\InvalidFileException('File ' . $fileID . ' no found in GMA');
+    }
+
+    public function getFile($fileID)
+    {
+        if(!$file = $this->getFileInfo($fileID)) { return false; }
 
         // Set start position
 
@@ -135,7 +176,7 @@ class AddonReader
             
             $char = $this->buffer->readInt8();
             
-            if($char == 0x00)
+            if($char == "\0")
             {
                 break;
             }
