@@ -59,7 +59,7 @@ class AddonWriter
 
             $contents = file_get_contents($folder . $file);
 
-            $this->writeString($contents);
+            $this->writeString($contents, false);
         }
 
         $this->writeInt(crc32($this->filename), $uint32);
