@@ -1,8 +1,5 @@
 <?php
 
-/**
- * @coversDefaultClass \AdamDBurton\GMad\AddonReader
- */
 class AddonExtractorTest extends \PHPUnit_Framework_TestCase
 {
     private static $filename;
